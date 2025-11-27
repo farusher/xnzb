@@ -1,0 +1,8 @@
+{
+  "name": "SimuLive - 虚拟直播助手",
+  "description": "A high-fidelity TikTok/Douyin live streaming simulator. Features AI-generated viewers, voice-controlled danmaku triggers, and realistic interaction overlays.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
