@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StreamSettings } from '../types';
-import { generateHostAvatar } from '../services/geminiService';
-import { Settings, RefreshCw, Upload, Image as ImageIcon } from 'lucide-react';
+import { Settings, Upload } from 'lucide-react';
 
 interface SetupPanelProps {
   settings: StreamSettings;
@@ -18,15 +17,17 @@ export const SetupPanel: React.FC<SetupPanelProps> = ({
   customComments,
   setCustomComments
 }) => {
-  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
 
-  const handleAvatarGenerate = async () => {
-    setIsGeneratingAvatar(true);
-    const avatar = await generateHostAvatar(`A high quality profile photo of ${settings.hostName || 'a chinese streamer'}, beauty filter style, bright lighting`);
-    if (avatar) {
-      setSettings(prev => ({ ...prev, hostAvatar: avatar }));
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setSettings(prev => ({ ...prev, hostAvatar: result }));
+      };
+      reader.readAsDataURL(file);
     }
-    setIsGeneratingAvatar(false);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +47,7 @@ export const SetupPanel: React.FC<SetupPanelProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-gray-900 text-white p-6 overflow-y-auto">
       <div className="max-w-md mx-auto space-y-8">
-        <h1 className="text-3xl font-bold text-center text-pink-500 mb-8">虚拟直播助手 Setup</h1>
+        <h1 className="text-3xl font-bold text-center text-pink-500 mb-8">虚拟直播助手</h1>
         
         {/* Host Info */}
         <div className="bg-gray-800 p-4 rounded-xl space-y-4">
@@ -55,7 +56,7 @@ export const SetupPanel: React.FC<SetupPanelProps> = ({
           </h2>
           
           <div className="flex items-center gap-4">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-pink-500 bg-gray-700">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-pink-500 bg-gray-700 shrink-0">
                <img src={settings.hostAvatar} alt="Host" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 space-y-2">
@@ -66,14 +67,16 @@ export const SetupPanel: React.FC<SetupPanelProps> = ({
                 className="w-full bg-gray-700 rounded px-3 py-2"
                 placeholder="主播昵称"
               />
-              <button 
-                onClick={handleAvatarGenerate}
-                disabled={isGeneratingAvatar}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded flex items-center gap-1 disabled:opacity-50"
-              >
-                {isGeneratingAvatar ? <RefreshCw className="animate-spin" size={12} /> : <ImageIcon size={12}/>}
-                AI生成头像 (Nano Banana)
-              </button>
+              <label className="cursor-pointer inline-flex items-center gap-1 text-xs bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded transition-colors">
+                <Upload size={12} />
+                自定义头像
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={handleAvatarUpload} 
+                />
+              </label>
             </div>
           </div>
         </div>
